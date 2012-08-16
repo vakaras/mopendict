@@ -1,5 +1,5 @@
-Welcome to {app_name}'s documentation!
-===================================
+Welcome to mopendict's documentation!
+=====================================
 
 Contents:
 

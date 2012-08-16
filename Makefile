@@ -1,4 +1,4 @@
-PACKAGES={package_name}
+PACKAGES=mopendict
 
 test:
 	bin/test $(PACKAGES) \
