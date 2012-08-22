@@ -18,6 +18,7 @@ setup(
             'distribute',
             ],
         install_requires=[              # Dependencies for the package.
+            'mechanize',
             ],
         scripts=[],                     # List of python script files.
         #data_files=[('/etc/init.d', ['init-script'])]
@@ -32,6 +33,11 @@ setup(
             open('README.rst').read()+open('CHANGES.txt').read()),
         # Full list of classifiers could be found at:
         # http://pypi.python.org/pypi?%3Aaction=list_classifiers
+        entry_points = {
+            'console_scripts': [
+                'download = mopendict.download:main',
+                ]
+            },
         classifiers=[
             'Development Status :: 1 - Planning',
             #'Environment :: Console',
