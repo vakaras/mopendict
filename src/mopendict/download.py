@@ -117,7 +117,7 @@ class Downloader(object):
 
 
 def main(args):
-    """
+    """ This script downloads words from website to dwa file.
     :param url: Website root.
     :param skip: How many letters to skip.
     """
