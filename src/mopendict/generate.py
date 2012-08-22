@@ -18,11 +18,11 @@ from common import Word, unpack, pack
 
 
 WAYS_LIST = [
-        ('1 ,.-/\'&`~!',              [1,],),
-        ('2aąäāàbcčćAĄÄĀÀBCČĆ',       [2,],),
+        ('1 ,.-/\'&`~!’*^<>',         [1,],),
+        ('2aąäāàbcčćAĄÄĀÀBCČĆÅ',      [2,],),
         ('3deęėéèēfDEĘĖÉÈĒF',         [3,],),
         ('4ghiįīïGHIĮĪÏ',             [4,],),
-        ('5jklJKL',                   [5,],),
+        ('5jklJKLł',                  [5,],),
         ('6mnńoöóōMNŃOÖÓŌ',           [6,],),
         ('7pqrsšPQRSŠ',               [7,],),
         ('ßẞ',                        [7, 7,],),
@@ -220,25 +220,55 @@ def clean(infilename, outfilename, localename):
                 for line in lines
                 ]
         for key, line in sorted(slines):
-            value, meaning = line.split('=', 1)
-            if len(value) > 20:
-                print 'long word:', value
-            value = value.replace('|', '')
-            match = re.match(r'(.*)\((.*)\)(.*)', value, re.UNICODE)
-            if match:
-                groups = match.groups()
-                write(groups[0] + groups[2], meaning)
-                write(''.join(groups), meaning)
-            else:
-                write(value, meaning)
+            values, meaning = line.split('=', 1)
+            for value in values.replace(';', ',').split(','):
+                if len(value) > 20:
+                    print 'long word:', value
+                value = value.replace('|', '')
+                match = re.match(r'(.*)\((.*)\)(.*)', value, re.UNICODE)
+                if match:
+                    groups = match.groups()
+                    write(groups[0] + groups[2], meaning)
+                    write(''.join(groups), meaning)
+                else:
+                    write(value, meaning)
 
 
-def main(args):
+def generate(args):
     """ This script cleans dwa file and creates dict file for it.
     """
     input_name, locale_name = args
     base_name = os.path.splitext(input_name)[0]
     clean_name = base_name + '.clean.dwa'
-    output_name = base_name + '.dict'
+    output_name = base_name + '.mdict'
     clean(input_name, clean_name, locale_name)
     create(clean_name, output_name)
+
+
+def convert(args):
+    """ This scripts cleans dwa file and creates DictDB for GoldenDict.
+
+    Requires dictdlib library::
+
+        sudo apt-get install python-dictdlib
+    """
+    input_name, locale_name = args
+    base_name = os.path.splitext(input_name)[0]
+    output_name = base_name
+    clean_name = base_name + '.clean.dwa'
+    clean(input_name, clean_name, locale_name)
+
+    from dictdlib import DictDB
+    db = DictDB(output_name.decode('utf-8'), mode='write')
+    with open(clean_name) as fin:
+        for i, line in enumerate(fin):
+            try:
+                word, meaning = line.decode('utf-8')[:-1].split('=', 1)
+                match = re.match(r'(.*)(\w*)(\d*)', word, re.UNICODE)
+                db.addentry(
+                        meaning.encode('utf-8'),
+                        [match.groups()[0].encode('utf-8')])
+            except:
+                print i, line
+                raise
+    db.finish()

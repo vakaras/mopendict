@@ -37,7 +37,8 @@ setup(
         entry_points = {
             'console_scripts': [
                 'download = mopendict.download:main',
-                'generate = mopendict.generate:main',
+                'generate = mopendict.generate:generate',
+                'convert = mopendict.generate:convert',
                 ]
             },
         classifiers=[
