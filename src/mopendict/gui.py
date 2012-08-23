@@ -87,8 +87,37 @@ class DictApp(object):
             for i in range(10)
             ])
 
-        self.dictionary = Dict(os.path.join(DICTS_DIR, 'de.dict'))
+        self.dictionaries = []
+        for file_name in os.listdir(DICTS_DIR):
+            self.dictionaries.append(
+                    (file_name, Dict(os.path.join(DICTS_DIR, file_name))))
+        self.active_dictionary = 0
 
+    @property
+    def dictionary_name(self):
+        """ Returns the name of active dictionary.
+        """
+        return self.dictionaries[self.active_dictionary][0][:-6]
+
+    @property
+    def dictionary(self):
+        """ Returns active dictionary.
+        """
+        return self.dictionaries[self.active_dictionary][1]
+
+    def next_dictionary(self):
+        """ Changes active dictionary to next.
+        """
+        self.active_dictionary += 1
+        if self.active_dictionary == len(self.dictionaries):
+            self.active_dictionary = 0
+
+    def previous_dictionary(self):
+        """ Changes active dictionary to previous.
+        """
+        if self.active_dictionary == 0:
+            self.active_dictionary = len(self.dictionaries)
+        self.active_dictionary -= 1
 
     def handle_redraw(self, rect=None):
         """ Handles redraw.
@@ -109,7 +138,10 @@ class DictApp(object):
         self.canvas.text(
                 (x, y),
                 u''.join(
-                    [u'(', unicode(self.query_match), u') '] + self.query),
+                    [
+                        self.dictionary_name,
+                        u' (', unicode(self.query_match), u') '
+                        ] + self.query),
                 0x008000,
                 font=(u'Nokia Hindi S60', text_size, appuifw.STYLE_BOLD))
 
@@ -161,11 +193,9 @@ class DictApp(object):
         print 'Result length:', len(self.results)
 
         if event['scancode'] == key_codes.EScancodeLeftArrow:
-            pass
-            # TODO: Load previous dictionary.
+            self.previous_dictionary()
         if event['scancode'] == key_codes.EScancodeRightArrow:
-            pass
-            # TODO: Load next dictionary.
+            self.next_dictionary()
         if event['scancode'] == key_codes.EScancodeStar:
             self.query = []
         if event['scancode'] == key_codes.EScancodeSelect:
